@@ -299,12 +299,14 @@
             app:iconSpaceReserved="false" />
         <CheckBoxPreference
             android:defaultValue="false"
+            android:dependency="checkbox_mouse_emulation"
             android:key="checkbox_remap_x_to_ctrl"
             android:summary="@string/summary_remap_x_to_ctrl"
             android:title="@string/title_remap_x_to_ctrl"
             app:iconSpaceReserved="false" />
         <CheckBoxPreference
             android:defaultValue="false"
+            android:dependency="checkbox_mouse_emulation"
             android:key="checkbox_remap_y_to_esc"
             android:summary="@string/summary_remap_y_to_esc"
             android:title="@string/title_remap_y_to_esc"

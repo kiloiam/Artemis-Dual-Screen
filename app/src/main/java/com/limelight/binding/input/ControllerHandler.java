@@ -1371,30 +1371,8 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
                     (short)0, (byte)0, (byte)0, (short)0, (short)0, (short)0, (short)0);
         }
         else {
-            // Remap X→Ctrl / Y→Esc: simple state machine — send one KEY_DOWN
-            // on press and one KEY_UP on release. No repeat, matches reWASD behavior.
-            if (prefConfig.remapXToCtrl) {
-                boolean xPressed = (inputMap & ControllerPacket.X_FLAG) != 0;
-                if (xPressed && !remapXActive) {
-                    conn.sendKeyboardInput((short)0, KeyboardPacket.KEY_DOWN, KeyboardPacket.MODIFIER_CTRL, (byte)0);
-                    remapXActive = true;
-                } else if (!xPressed && remapXActive) {
-                    conn.sendKeyboardInput((short)0, KeyboardPacket.KEY_UP, KeyboardPacket.MODIFIER_CTRL, (byte)0);
-                    remapXActive = false;
-                }
-                inputMap &= ~ControllerPacket.X_FLAG;
-            }
-            if (prefConfig.remapYToEsc) {
-                boolean yPressed = (inputMap & ControllerPacket.Y_FLAG) != 0;
-                if (yPressed && !remapYActive) {
-                    conn.sendKeyboardInput((short)27, KeyboardPacket.KEY_DOWN, (byte)0, (byte)0);
-                    remapYActive = true;
-                } else if (!yPressed && remapYActive) {
-                    conn.sendKeyboardInput((short)27, KeyboardPacket.KEY_UP, (byte)0, (byte)0);
-                    remapYActive = false;
-                }
-                inputMap &= ~ControllerPacket.Y_FLAG;
-            }
+            // X→Ctrl / Y→Esc only active in mouse emulation mode;
+            // in normal gamepad mode X/Y keep their original function.
             conn.sendControllerInput(controllerNumber, getActiveControllerMask(),
                     inputMap,
                     leftTrigger, rightTrigger,
