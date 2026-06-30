@@ -4215,6 +4215,21 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         Toast.makeText(this, "Touch Sensitivity: " + status, Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * Inject a keyboard key event with proper modifier tracking.
+     * Used by ControllerHandler for X→Ctrl / Y→Esc remapping
+     * to match the virtual keyboard's modifier handling.
+     */
+    public void injectKey(short keyCode, byte modifierMask, boolean down) {
+        if (down) {
+            modifierFlags |= modifierMask;
+        } else {
+            modifierFlags &= ~modifierMask;
+        }
+        byte direction = down ? KeyboardPacket.KEY_DOWN : KeyboardPacket.KEY_UP;
+        conn.sendKeyboardInput(keyCode, direction, getModifierState(), (byte)0);
+    }
+
     public void disconnect() {
         if (prefConfig.smartClipboardSync) {
             getClipboard(-1);

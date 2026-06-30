@@ -33,6 +33,7 @@ import android.view.MotionEvent;
 import android.view.Surface;
 import android.widget.Toast;
 
+import com.limelight.Game;
 import com.limelight.GameMenu;
 import com.limelight.LimeLog;
 import com.limelight.R;
@@ -1345,24 +1346,26 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
                 }
             }
 
-            // Remap X→Ctrl / Y→Esc in mouse emulation mode
+            // Remap X→Ctrl / Y→Esc in mouse emulation mode.
+            // Route through Game.injectKey() for proper modifier state tracking
+            // (matches the virtual keyboard's modifier handling exactly).
             if (prefConfig.remapXToCtrl) {
                 boolean xPressed = (inputMap & ControllerPacket.X_FLAG) != 0;
                 if (xPressed && !remapXActive) {
-                    conn.sendKeyboardInput((short)0xA2, KeyboardPacket.KEY_DOWN, KeyboardPacket.MODIFIER_CTRL, (byte)0);
+                    Game.instance.injectKey((short)0xA2, KeyboardPacket.MODIFIER_CTRL, true);
                     remapXActive = true;
                 } else if (!xPressed && remapXActive) {
-                    conn.sendKeyboardInput((short)0xA2, KeyboardPacket.KEY_UP, KeyboardPacket.MODIFIER_CTRL, (byte)0);
+                    Game.instance.injectKey((short)0xA2, KeyboardPacket.MODIFIER_CTRL, false);
                     remapXActive = false;
                 }
             }
             if (prefConfig.remapYToEsc) {
                 boolean yPressed = (inputMap & ControllerPacket.Y_FLAG) != 0;
                 if (yPressed && !remapYActive) {
-                    conn.sendKeyboardInput((short)27, KeyboardPacket.KEY_DOWN, (byte)0, (byte)0);
+                    Game.instance.injectKey((short)27, (byte)0, true);
                     remapYActive = true;
                 } else if (!yPressed && remapYActive) {
-                    conn.sendKeyboardInput((short)27, KeyboardPacket.KEY_UP, (byte)0, (byte)0);
+                    Game.instance.injectKey((short)27, (byte)0, false);
                     remapYActive = false;
                 }
             }
