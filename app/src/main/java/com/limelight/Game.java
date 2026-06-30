@@ -4183,7 +4183,9 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
             } else if (mode == 3) {
                 touchContextMap[i] = new RelativeTouchContext(conn, i, REFERENCE_HORIZ_RES, REFERENCE_VERT_RES, streamContainer, prefConfig);
             } else {
-                touchContextMap[i] = new TrackpadContext(conn, i);
+                // Mode 2: Natural trackpad — pass sensitivity from Virtual Trackpad Settings
+                touchContextMap[i] = new TrackpadContext(conn, i, false,
+                    prefConfig.touchPadSensitivity, prefConfig.touchPadYSensitity);
             }
         }
 

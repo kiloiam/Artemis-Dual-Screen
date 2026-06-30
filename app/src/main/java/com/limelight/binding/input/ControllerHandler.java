@@ -1957,14 +1957,13 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
         Vector2d vector = new Vector2d();
         vector.initialize(stickX, stickY);
         vector.scalarMultiply(1 / 32766.0f);
-        // Use a gentler curve for better fine control:
-        // sqrt(magnitude) provides finer control at small deflections
-        // compared to the old cubic curve (magnitude^2)
         if (vector.getMagnitude() > 0) {
             double magnitude = vector.getMagnitude();
-            // Scale: base speed + acceleration as stick is pushed further
-            // Small deflections: ~smooth linear; Full deflection: up to 8x
-            double speedMultiplier = 6.0 * Math.sqrt(magnitude);
+            // sqrt curve for fine control at small deflections
+            // Full deflection: 12 pixels per frame (at 60Hz = 720 px/s)
+            double speedMultiplier = 12.0 * Math.sqrt(magnitude);
+            // Apply sensitivity from Touchpad Sensitivity setting (default 100 = 1.0x)
+            speedMultiplier *= (prefConfig.touchPadSensitivity / 100.0);
             vector.scalarMultiply(speedMultiplier);
         }
         return vector;
