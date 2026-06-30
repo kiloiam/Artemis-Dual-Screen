@@ -1962,8 +1962,8 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
             // sqrt curve for fine control at small deflections
             // Full deflection: 12 pixels per frame (at 60Hz = 720 px/s)
             double speedMultiplier = 12.0 * Math.sqrt(magnitude);
-            // Apply sensitivity from Touchpad Sensitivity setting (default 100 = 1.0x)
-            speedMultiplier *= (prefConfig.touchPadSensitivity / 100.0);
+            // Apply stick mouse sensitivity (default 100 = 1.0x)
+            speedMultiplier *= (prefConfig.stickMouseSensitivity / 100.0);
             vector.scalarMultiply(speedMultiplier);
         }
         return vector;
@@ -1995,9 +1995,9 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
                 }
             }
         } else {
-            // Stick near center: gradually decay accumulated deltas to avoid drift
-            emulatedMousePendingX[stickIndex] *= 0.5;
-            emulatedMousePendingY[stickIndex] *= 0.5;
+            // Stick at center: clear pending deltas to prevent cursor flickering
+            emulatedMousePendingX[stickIndex] = 0;
+            emulatedMousePendingY[stickIndex] = 0;
         }
     }
 
@@ -2020,8 +2020,8 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
                 emulatedScrollPendingX -= scrollX;
             }
         } else {
-            emulatedScrollPendingY *= 0.5;
-            emulatedScrollPendingX *= 0.5;
+            emulatedScrollPendingY = 0;
+            emulatedScrollPendingX = 0;
         }
     }
 

@@ -319,6 +319,9 @@ public class PreferenceConfiguration {
 
     public int touchPadYSensitity;
 
+    //摇杆鼠标灵敏度
+    public int stickMouseSensitivity;
+
     //多点触控模式
     public boolean enableMultiTouchScreen;
 
@@ -995,6 +998,8 @@ private static int getFramePacingValue(Context context) {
         config.touchPadSensitivity=prefs.getInt("seekbar_touchpad_sensitivity_opacity",100);
 
         config.touchPadYSensitity=prefs.getInt("seekbar_touchpad_sensitivity_y_opacity",100);
+
+        config.stickMouseSensitivity = prefs.getInt("seekbar_stick_mouse_sensitivity", 100);
 
         config.trackpadSensitivityX = prefs.getInt(SEEKBAR_TRACKPAD_SENSITIVITY_X, DEFAULT_TRACKPAD_SENSITIVITY_X);
         config.trackpadSensitivityY = prefs.getInt(SEEKBAR_TRACKPAD_SENSITIVITY_Y, DEFAULT_TRACKPAD_SENSITIVITY_Y);
