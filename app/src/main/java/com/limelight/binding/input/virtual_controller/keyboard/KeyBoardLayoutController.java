@@ -331,7 +331,7 @@ public class KeyBoardLayoutController {
         } else {
             DisplayMetrics screen = context.getResources().getDisplayMetrics();
             width = screen.widthPixels;
-            height = (int) (screen.heightPixels * 0.5);
+            height = prefConfig.fullscreenKeyboard ? screen.heightPixels : (int) (screen.heightPixels * 0.5);
         }
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(width, height);
         params.gravity = Gravity.BOTTOM;

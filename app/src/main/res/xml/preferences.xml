@@ -588,6 +588,12 @@
             seekbar:min="0"
             seekbar:step="1" />
         <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="checkbox_fullscreen_keyboard"
+            android:summary="@string/summary_fullscreen_keyboard"
+            android:title="@string/title_fullscreen_keyboard"
+            app:iconSpaceReserved="false" />
+        <CheckBoxPreference
             android:defaultValue="false"
             android:key="onscreen_keyboard_autofit"
             android:summary="@string/summary_onscreen_keyboard_autofit"

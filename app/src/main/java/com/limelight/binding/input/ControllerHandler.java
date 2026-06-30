@@ -1345,32 +1345,54 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
                 }
             }
 
-            // Remap X→Ctrl / Y→Esc (keyboard events in mouse emulation mode)
-            if (prefConfig.remapXToCtrl && (changedMask & ControllerPacket.X_FLAG) != 0) {
-                byte dir = (inputMap & ControllerPacket.X_FLAG) != 0 ? KeyboardPacket.KEY_DOWN : KeyboardPacket.KEY_UP;
-                conn.sendKeyboardInput((short)0, dir, KeyboardPacket.MODIFIER_CTRL, (byte)0);
+            // Remap X→Ctrl / Y→Esc in mouse emulation mode
+            if (prefConfig.remapXToCtrl) {
+                boolean xDown = (inputMap & ControllerPacket.X_FLAG) != 0;
+                if (xDown && !remapXActive) {
+                    conn.sendKeyboardInput((short)0, KeyboardPacket.KEY_DOWN, KeyboardPacket.MODIFIER_CTRL, (byte)0);
+                    remapXActive = true;
+                } else if (!xDown && remapXActive) {
+                    conn.sendKeyboardInput((short)0, KeyboardPacket.KEY_UP, KeyboardPacket.MODIFIER_CTRL, (byte)0);
+                    remapXActive = false;
+                }
             }
-            if (prefConfig.remapYToEsc && (changedMask & ControllerPacket.Y_FLAG) != 0) {
-                byte dir = (inputMap & ControllerPacket.Y_FLAG) != 0 ? KeyboardPacket.KEY_DOWN : KeyboardPacket.KEY_UP;
-                conn.sendKeyboardInput((short)27, dir, (byte)0, (byte)0);
+            if (prefConfig.remapYToEsc) {
+                boolean yDown = (inputMap & ControllerPacket.Y_FLAG) != 0;
+                if (yDown && !remapYActive) {
+                    conn.sendKeyboardInput((short)27, KeyboardPacket.KEY_DOWN, (byte)0, (byte)0);
+                    remapYActive = true;
+                } else if (!yDown && remapYActive) {
+                    conn.sendKeyboardInput((short)27, KeyboardPacket.KEY_UP, (byte)0, (byte)0);
+                    remapYActive = false;
+                }
             }
 
             conn.sendControllerInput(controllerNumber, getActiveControllerMask(),
                     (short)0, (byte)0, (byte)0, (short)0, (short)0, (short)0, (short)0);
         }
         else {
-            // Remap X→Ctrl / Y→Esc (keyboard events, remove from controller flags)
-            int changedMask = inputMap ^ originalContext.inputMapLastSent;
-            // Save original state BEFORE clearing to avoid re-triggering every frame
-            originalContext.inputMapLastSent = inputMap;
-            if (prefConfig.remapXToCtrl && (changedMask & ControllerPacket.X_FLAG) != 0) {
-                byte dir = (inputMap & ControllerPacket.X_FLAG) != 0 ? KeyboardPacket.KEY_DOWN : KeyboardPacket.KEY_UP;
-                conn.sendKeyboardInput((short)0, dir, KeyboardPacket.MODIFIER_CTRL, (byte)0);
+            // Remap X→Ctrl / Y→Esc: simple state machine — send one KEY_DOWN
+            // on press and one KEY_UP on release. No repeat, matches reWASD behavior.
+            if (prefConfig.remapXToCtrl) {
+                boolean xDown = (inputMap & ControllerPacket.X_FLAG) != 0;
+                if (xDown && !remapXActive) {
+                    conn.sendKeyboardInput((short)0, KeyboardPacket.KEY_DOWN, KeyboardPacket.MODIFIER_CTRL, (byte)0);
+                    remapXActive = true;
+                } else if (!xDown && remapXActive) {
+                    conn.sendKeyboardInput((short)0, KeyboardPacket.KEY_UP, KeyboardPacket.MODIFIER_CTRL, (byte)0);
+                    remapXActive = false;
+                }
                 inputMap &= ~ControllerPacket.X_FLAG;
             }
-            if (prefConfig.remapYToEsc && (changedMask & ControllerPacket.Y_FLAG) != 0) {
-                byte dir = (inputMap & ControllerPacket.Y_FLAG) != 0 ? KeyboardPacket.KEY_DOWN : KeyboardPacket.KEY_UP;
-                conn.sendKeyboardInput((short)27, dir, (byte)0, (byte)0);
+            if (prefConfig.remapYToEsc) {
+                boolean yDown = (inputMap & ControllerPacket.Y_FLAG) != 0;
+                if (yDown && !remapYActive) {
+                    conn.sendKeyboardInput((short)27, KeyboardPacket.KEY_DOWN, (byte)0, (byte)0);
+                    remapYActive = true;
+                } else if (!yDown && remapYActive) {
+                    conn.sendKeyboardInput((short)27, KeyboardPacket.KEY_UP, (byte)0, (byte)0);
+                    remapYActive = false;
+                }
                 inputMap &= ~ControllerPacket.Y_FLAG;
             }
             conn.sendControllerInput(controllerNumber, getActiveControllerMask(),
@@ -2028,6 +2050,10 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
 
     private double emulatedScrollPendingY = 0;
     private double emulatedScrollPendingX = 0;
+
+    // State machine for X→Ctrl / Y→Esc remapping
+    private boolean remapXActive = false;
+    private boolean remapYActive = false;
 
     private void sendEmulatedMouseScroll(short x, short y) {
         Vector2d vector = convertRawStickAxisToPixelMovement(x, y);

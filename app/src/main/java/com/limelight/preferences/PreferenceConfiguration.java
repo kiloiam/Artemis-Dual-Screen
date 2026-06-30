@@ -359,6 +359,7 @@ public class PreferenceConfiguration {
     public boolean mouseEmulation;
     public boolean remapXToCtrl;
     public boolean remapYToEsc;
+    public boolean fullscreenKeyboard;
     public AnalogStickForScrolling analogStickForScrolling;
     public boolean mouseNavButtons;
     public boolean rememberMouseMode;
@@ -933,6 +934,7 @@ private static int getFramePacingValue(Context context) {
         config.mouseEmulation = prefs.getBoolean(MOUSE_EMULATION_STRING, DEFAULT_MOUSE_EMULATION);
         config.remapXToCtrl = prefs.getBoolean("checkbox_remap_x_to_ctrl", false);
         config.remapYToEsc = prefs.getBoolean("checkbox_remap_y_to_esc", false);
+        config.fullscreenKeyboard = prefs.getBoolean("checkbox_fullscreen_keyboard", true);
         config.mouseNavButtons = prefs.getBoolean(MOUSE_NAV_BUTTONS_STRING, DEFAULT_MOUSE_NAV_BUTTONS);
         config.rememberMouseMode = prefs.getBoolean(REMEMBER_MOUSE_MODE_PREF_STRING, DEFAULT_REMEMBER_MOUSE_MODE);
         config.unlockFps = prefs.getBoolean(UNLOCK_FPS_STRING, DEFAULT_UNLOCK_FPS);
