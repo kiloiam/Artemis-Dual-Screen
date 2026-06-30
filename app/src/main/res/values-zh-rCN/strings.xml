@@ -190,8 +190,8 @@
     <string name="summary_remap_x_to_ctrl">按下手柄 X 键时发送键盘 Ctrl 键</string>
     <string name="title_remap_y_to_esc">Y 键映射为 Esc</string>
     <string name="summary_remap_y_to_esc">按下手柄 Y 键时发送键盘 Esc 键</string>
-    <string name="title_fullscreen_keyboard">全屏键盘</string>
-    <string name="summary_fullscreen_keyboard">虚拟键盘铺满整个屏幕</string>
+    <string name="title_keyboard_height_percent">键盘高度</string>
+    <string name="summary_keyboard_height_percent">虚拟键盘占屏幕高度的百分比</string>
     <string name="title_checkbox_remember_mouse_mode">记住鼠标模式</string>
     <string name="summary_checkbox_remember_mouse_mode">记住在串流中选择的鼠标模式。禁用时，串流中改变的鼠标模式将是临时的。</string>
     <string name="title_checkbox_mouse_nav_buttons"> 启用前进后退鼠标键 </string>

@@ -242,8 +242,8 @@
     <string name="summary_remap_x_to_ctrl">Send keyboard Ctrl key instead of gamepad X button</string>
     <string name="title_remap_y_to_esc">Remap Y to Esc</string>
     <string name="summary_remap_y_to_esc">Send keyboard Escape key instead of gamepad Y button</string>
-    <string name="title_fullscreen_keyboard">Full-screen Keyboard</string>
-    <string name="summary_fullscreen_keyboard">Keyboard fills the entire screen instead of half</string>
+    <string name="title_keyboard_height_percent">Keyboard Height</string>
+    <string name="summary_keyboard_height_percent">Virtual keyboard height as percentage of screen</string>
     <string name="title_checkbox_remember_mouse_mode">Remember mouse mode</string>
     <string name="summary_checkbox_remember_mouse_mode">Remember mouse mode selected during stream. When disabled, mouse mode changed during stream will be temporary.</string>
     <string name="title_checkbox_flip_face_buttons">Flip face buttons</string>

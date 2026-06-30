@@ -587,11 +587,15 @@
             app:iconSpaceReserved="false"
             seekbar:min="0"
             seekbar:step="1" />
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="checkbox_fullscreen_keyboard"
-            android:summary="@string/summary_fullscreen_keyboard"
-            android:title="@string/title_fullscreen_keyboard"
+        <com.limelight.preferences.SeekBarPreference
+            android:defaultValue="80"
+            android:key="seekbar_keyboard_height_percent"
+            android:max="100"
+            android:summary="@string/summary_keyboard_height_percent"
+            android:text="%"
+            android:title="@string/title_keyboard_height_percent"
+            seekbar:min="50"
+            seekbar:step="5"
             app:iconSpaceReserved="false" />
         <CheckBoxPreference
             android:defaultValue="false"

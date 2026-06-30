@@ -540,10 +540,8 @@ public class ExternalDisplayControlActivity extends AppCompatActivity implements
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                 android.content.SharedPreferences prefs = getPreferences(MODE_PRIVATE);
                 boolean alreadyRequested = prefs.getBoolean(PREF_NOTIFICATION_REQUESTED, false);
-                boolean shouldShow = ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.POST_NOTIFICATIONS);
-                // Show dialog on first request or if user didn't permanently deny.
-                // Skip only if already requested AND permanently denied (shouldShow=false).
-                if (shouldShow || !alreadyRequested) {
+                // Only ask once ever. After the first request (granted or denied), never ask again.
+                if (!alreadyRequested) {
                     prefs.edit().putBoolean(PREF_NOTIFICATION_REQUESTED, true).apply();
                     ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, PERMISSION_REQUEST_CODE);
                 }
