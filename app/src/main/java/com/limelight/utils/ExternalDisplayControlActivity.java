@@ -76,6 +76,7 @@ public class ExternalDisplayControlActivity extends AppCompatActivity implements
     private Runnable dimScreenRunnable;
     private float originalBrightness = -1f; // -1 = use system default
     private static final int INACTIVITY_TIMEOUT_MS = 10_000;
+    private boolean hasRequestedNotificationPermission = false;
 
 
     private static final String NOTIFICATION_CHANNEL_ID = "secondary_screen_active_channel_id";
@@ -203,7 +204,6 @@ public class ExternalDisplayControlActivity extends AppCompatActivity implements
         createProgrammaticUI();
         checkNotificationPermission();
         initTouchEventHandling();
-        setupInactivityTimeoutForBrightness();
         requestFocusToGameActivity(false);
     }
 
@@ -287,9 +287,7 @@ public class ExternalDisplayControlActivity extends AppCompatActivity implements
     }
 
     private void handleUserActivity() {
-        // Restore brightness if dimmed
-        restoreBrightnessIfNeeded();
-        resetInactivityTimer();
+        // Screen dimming disabled - keep screen always bright
     }
 
     private void resetInactivityTimer() {
@@ -540,7 +538,13 @@ public class ExternalDisplayControlActivity extends AppCompatActivity implements
     private void checkNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, PERMISSION_REQUEST_CODE);
+                // Only request if user hasn't previously denied permanently
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.POST_NOTIFICATIONS)
+                    || !hasRequestedNotificationPermission) {
+                    hasRequestedNotificationPermission = true;
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, PERMISSION_REQUEST_CODE);
+                }
+                // If user chose "don't ask again", skip silently
                 return;
             }
         }

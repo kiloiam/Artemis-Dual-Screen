@@ -4211,6 +4211,8 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
     //切换触控灵敏度开关
     public void switchTouchSensitivity(){
         prefConfig.enableTouchSensitivity = !prefConfig.enableTouchSensitivity;
+        String status = prefConfig.enableTouchSensitivity ? "ON" : "OFF";
+        Toast.makeText(this, "Touch Sensitivity: " + status, Toast.LENGTH_SHORT).show();
     }
 
     public void disconnect() {
