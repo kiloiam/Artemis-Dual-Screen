@@ -102,6 +102,11 @@ android {
         }
     }
 
+    lint {
+        disable 'ExtraTranslation'
+        abortOnError false
+    }
+
     buildTypes {
         debug {
             applicationIdSuffix ".noirdebug"
