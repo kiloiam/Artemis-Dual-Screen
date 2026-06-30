@@ -342,8 +342,8 @@ public class ServerHelper {
         Intent intent = createStartIntent(parent, app, computer, managerBinder, withVDisplay);
 
         // For dual internal screen devices, launch the touchpad on the smaller display
-        int launchDisplayId = intent.getIntExtra(ExternalDisplayControlActivity.EXTRA_LAUNCH_DISPLAY_ID, Display.DEFAULT_DISPLAY);
-        if (launchDisplayId != Display.DEFAULT_DISPLAY && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        int launchDisplayId = intent.getIntExtra(ExternalDisplayControlActivity.EXTRA_LAUNCH_DISPLAY_ID, -1);
+        if (launchDisplayId != -1 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             android.app.ActivityOptions options = android.app.ActivityOptions.makeBasic();
             options.setLaunchDisplayId(launchDisplayId);
             parent.startActivity(intent, options.toBundle());

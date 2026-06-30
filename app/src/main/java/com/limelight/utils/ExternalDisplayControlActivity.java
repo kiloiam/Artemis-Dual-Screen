@@ -126,11 +126,13 @@ public class ExternalDisplayControlActivity extends AppCompatActivity implements
             } else {
                 // For dual internal screen devices, Game's EXTRA_DISPLAY_ID is already set
                 // to the larger display; honor it instead of using getSecondaryDisplay()
-                int gameDisplayId = gameIntent.getIntExtra(Game.EXTRA_DISPLAY_ID, Display.DEFAULT_DISPLAY);
-                boolean isDualInternal = getIntent().getIntExtra(EXTRA_LAUNCH_DISPLAY_ID, Display.DEFAULT_DISPLAY) != Display.DEFAULT_DISPLAY;
+                int launchDisplayId = getIntent().getIntExtra(EXTRA_LAUNCH_DISPLAY_ID, -1);
+                boolean isDualInternal = launchDisplayId != -1;
 
-                if (isDualInternal && gameDisplayId != Display.DEFAULT_DISPLAY && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if (isDualInternal && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     // Dual internal screen: launch Game on the display specified in EXTRA_DISPLAY_ID
+                    int gameDisplayId = gameIntent.getIntExtra(Game.EXTRA_DISPLAY_ID, -1);
+                    if (gameDisplayId == -1) gameDisplayId = Display.DEFAULT_DISPLAY;
                     ActivityOptions options = ActivityOptions.makeBasic();
                     options.setLaunchDisplayId(gameDisplayId);
                     DisplayManager dm = (DisplayManager) getSystemService(Context.DISPLAY_SERVICE);
