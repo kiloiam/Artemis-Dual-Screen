@@ -1957,28 +1957,48 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
         Vector2d vector = new Vector2d();
         vector.initialize(stickX, stickY);
         vector.scalarMultiply(1 / 32766.0f);
-        vector.scalarMultiply(4);
+        // Use a gentler curve for better fine control:
+        // sqrt(magnitude) provides finer control at small deflections
+        // compared to the old cubic curve (magnitude^2)
         if (vector.getMagnitude() > 0) {
-            // Move faster as the stick is pressed further from center
-            vector.scalarMultiply(Math.pow(vector.getMagnitude(), 2));
+            double magnitude = vector.getMagnitude();
+            // Scale: base speed + acceleration as stick is pushed further
+            // Small deflections: ~smooth linear; Full deflection: up to 8x
+            double speedMultiplier = 6.0 * Math.sqrt(magnitude);
+            vector.scalarMultiply(speedMultiplier);
         }
         return vector;
     }
 
-    private void sendEmulatedMouseMove(short x, short y, boolean mouseEmulationXDown, int mouseEmulationPixelMultiplier) {
-        Vector2d vector = convertRawStickAxisToPixelMovement(x, y);
-        if (vector.getMagnitude() >= 1) {
+    // Sub-pixel accumulation for smooth fractional deltas (per-stick: left & right)
+    private final double[] emulatedMousePendingX = new double[2];
+    private final double[] emulatedMousePendingY = new double[2];
 
-            // Used a fixed amount of mouse movement while the X button is pressed
-            if(mouseEmulationXDown == true )
-            {
-                // convert the vector number to -1 if negative and +1 if positive and then send the mouse movement in pixels
-                conn.sendMouseMove((short)(Integer.signum((int)vector.getX()) * mouseEmulationPixelMultiplier) , (short)(Integer.signum((int)-vector.getY()) * mouseEmulationPixelMultiplier) );
+    private void sendEmulatedMouseMove(short x, short y, int stickIndex,
+                                        boolean xDown, int pixelMultiplier) {
+        Vector2d vector = convertRawStickAxisToPixelMovement(x, y);
+        if (vector.getMagnitude() >= 0.15) {
+            if (xDown) {
+                // X-button precision mode: fixed-step movement in stick direction
+                conn.sendMouseMove(
+                    (short)(Integer.signum((int)vector.getX()) * pixelMultiplier),
+                    (short)(Integer.signum((int)-vector.getY()) * pixelMultiplier));
+            } else {
+                // Accumulate sub-pixel deltas for smooth cursor movement
+                emulatedMousePendingX[stickIndex] += vector.getX();
+                emulatedMousePendingY[stickIndex] += -vector.getY();
+                short moveX = (short) emulatedMousePendingX[stickIndex];
+                short moveY = (short) emulatedMousePendingY[stickIndex];
+                if (moveX != 0 || moveY != 0) {
+                    conn.sendMouseMove(moveX, moveY);
+                    emulatedMousePendingX[stickIndex] -= moveX;
+                    emulatedMousePendingY[stickIndex] -= moveY;
+                }
             }
-            else {
-                // If X button is not pressed, base the movement on how much the stick is moved from the center
-                conn.sendMouseMove((short) vector.getX(), (short) -vector.getY());
-            }
+        } else {
+            // Stick near center: gradually decay accumulated deltas to avoid drift
+            emulatedMousePendingX[stickIndex] *= 0.5;
+            emulatedMousePendingY[stickIndex] *= 0.5;
         }
     }
 
@@ -3056,7 +3076,8 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
         public int mouseEmulationPixelMultiplier = 1;
 
         public int mouseEmulationLastInputMap;
-        public final int mouseEmulationReportPeriod = 50;
+        // Poll at ~60Hz for smooth cursor movement (was 50ms = 20Hz)
+        public final int mouseEmulationReportPeriod = 16;
 
         public final Runnable mouseEmulationRunnable = new Runnable() {
             @Override
@@ -3067,18 +3088,16 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
 
                 // Send mouse events from analog sticks
                 if (prefConfig.analogStickForScrolling == PreferenceConfiguration.AnalogStickForScrolling.RIGHT) {
-
-                    // Changed absolute value
-                    sendEmulatedMouseMove(leftStickX, leftStickY, mouseEmulationXDown, mouseEmulationPixelMultiplier);
+                    sendEmulatedMouseMove(leftStickX, leftStickY, 0, mouseEmulationXDown, mouseEmulationPixelMultiplier);
                     sendEmulatedMouseScroll(rightStickX, rightStickY);
                 }
                 else if (prefConfig.analogStickForScrolling == PreferenceConfiguration.AnalogStickForScrolling.LEFT) {
-                    sendEmulatedMouseMove(rightStickX, rightStickY, mouseEmulationXDown, mouseEmulationPixelMultiplier);
+                    sendEmulatedMouseMove(rightStickX, rightStickY, 0, mouseEmulationXDown, mouseEmulationPixelMultiplier);
                     sendEmulatedMouseScroll(leftStickX, leftStickY);
                 }
                 else {
-                    sendEmulatedMouseMove(leftStickX, leftStickY, mouseEmulationXDown, mouseEmulationPixelMultiplier);
-                    sendEmulatedMouseMove(rightStickX, rightStickY, mouseEmulationXDown, mouseEmulationPixelMultiplier);
+                    sendEmulatedMouseMove(leftStickX, leftStickY, 0, mouseEmulationXDown, mouseEmulationPixelMultiplier);
+                    sendEmulatedMouseMove(rightStickX, rightStickY, 1, mouseEmulationXDown, mouseEmulationPixelMultiplier);
                 }
 
                 // Requeue the callback
