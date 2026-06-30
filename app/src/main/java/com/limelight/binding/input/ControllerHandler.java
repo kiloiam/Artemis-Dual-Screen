@@ -2002,11 +2002,27 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
         }
     }
 
+    private double emulatedScrollPendingY = 0;
+    private double emulatedScrollPendingX = 0;
+
     private void sendEmulatedMouseScroll(short x, short y) {
         Vector2d vector = convertRawStickAxisToPixelMovement(x, y);
-        if (vector.getMagnitude() >= 1) {
-            conn.sendMouseHighResScroll((short)vector.getY());
-            conn.sendMouseHighResHScroll((short)vector.getX());
+        if (vector.getMagnitude() >= 0.15) {
+            emulatedScrollPendingY += vector.getY();
+            emulatedScrollPendingX += vector.getX();
+            short scrollY = (short) emulatedScrollPendingY;
+            short scrollX = (short) emulatedScrollPendingX;
+            if (scrollY != 0) {
+                conn.sendMouseHighResScroll(scrollY);
+                emulatedScrollPendingY -= scrollY;
+            }
+            if (scrollX != 0) {
+                conn.sendMouseHighResHScroll(scrollX);
+                emulatedScrollPendingX -= scrollX;
+            }
+        } else {
+            emulatedScrollPendingY *= 0.5;
+            emulatedScrollPendingX *= 0.5;
         }
     }
 
