@@ -1361,6 +1361,8 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
         else {
             // Remap X→Ctrl / Y→Esc (keyboard events, remove from controller flags)
             int changedMask = inputMap ^ originalContext.inputMapLastSent;
+            // Save original state BEFORE clearing to avoid re-triggering every frame
+            originalContext.inputMapLastSent = inputMap;
             if (prefConfig.remapXToCtrl && (changedMask & ControllerPacket.X_FLAG) != 0) {
                 byte dir = (inputMap & ControllerPacket.X_FLAG) != 0 ? KeyboardPacket.KEY_DOWN : KeyboardPacket.KEY_UP;
                 conn.sendKeyboardInput((short)0, dir, KeyboardPacket.MODIFIER_CTRL, (byte)0);
@@ -1371,7 +1373,6 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
                 conn.sendKeyboardInput((short)27, dir, (byte)0, (byte)0);
                 inputMap &= ~ControllerPacket.Y_FLAG;
             }
-            originalContext.inputMapLastSent = inputMap;
             conn.sendControllerInput(controllerNumber, getActiveControllerMask(),
                     inputMap,
                     leftTrigger, rightTrigger,
