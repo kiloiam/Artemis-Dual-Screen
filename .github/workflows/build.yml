@@ -1,9 +1,7 @@
-name: Build APK
+name: Build & Release APK
 
 on:
   push:
-    branches: [moonlight-noir]
-  pull_request:
     branches: [moonlight-noir]
   workflow_dispatch:
 
@@ -32,11 +30,45 @@ jobs:
       - name: Cache Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Build Debug APK
-        run: ./gradlew assembleDebug
+      - name: Generate keystore
+        run: |
+          keytool -genkeypair -v \
+            -keystore "$HOME/.android/debug.keystore" \
+            -alias androiddebugkey \
+            -keyalg RSA -keysize 2048 -validity 10000 \
+            -dname "CN=CI, OU=CI, O=CI, L=CI, ST=CI, C=US" \
+            -storepass android -keypass android
 
-      - name: Upload APK
+      - name: Build Release APK
+        run: ./gradlew assembleRelease
+
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug
-          path: app/build/outputs/apk/**/*.apk
+          name: app-release
+          path: app/build/outputs/apk/**/*release*.apk
+
+      - name: Get version name
+        id: version
+        run: |
+          VER=$(grep 'versionName' app/build.gradle | head -1 | sed 's/.*versionName "\(.*\)"/\1/')
+          echo "version=$VER" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Artemis Dual-Screen v${{ steps.version.outputs.version }}
+          body: |
+            Artemis Dual-Screen — Moonlight Android fork with dual-screen display fix.
+
+            **Fix**: Properly detects dual internal screen devices (e.g. AYN Thor) and routes streaming to the larger display while placing touch controls on the smaller one, in fully external display mode.
+
+            **Changes**:
+            - Display type detection using flag-based heuristics
+            - Dual internal screen routing (stream on larger, controls on smaller)
+            - External display prioritization for true external displays
+          files: app/build/outputs/apk/**/*release*.apk
+          draft: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
