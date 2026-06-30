@@ -357,6 +357,8 @@ public class PreferenceConfiguration {
 
     public boolean bindAllUsb;
     public boolean mouseEmulation;
+    public boolean remapXToCtrl;
+    public boolean remapYToEsc;
     public AnalogStickForScrolling analogStickForScrolling;
     public boolean mouseNavButtons;
     public boolean rememberMouseMode;
@@ -929,6 +931,8 @@ private static int getFramePacingValue(Context context) {
         config.enablePerfOverlayBottom = prefs.getBoolean("checkbox_enable_perf_overlay_bottom",DEFAULT_PERF_OVERLAY_BOTTOM);
         config.bindAllUsb = prefs.getBoolean(BIND_ALL_USB_STRING, DEFAULT_BIND_ALL_USB);
         config.mouseEmulation = prefs.getBoolean(MOUSE_EMULATION_STRING, DEFAULT_MOUSE_EMULATION);
+        config.remapXToCtrl = prefs.getBoolean("checkbox_remap_x_to_ctrl", false);
+        config.remapYToEsc = prefs.getBoolean("checkbox_remap_y_to_esc", false);
         config.mouseNavButtons = prefs.getBoolean(MOUSE_NAV_BUTTONS_STRING, DEFAULT_MOUSE_NAV_BUTTONS);
         config.rememberMouseMode = prefs.getBoolean(REMEMBER_MOUSE_MODE_PREF_STRING, DEFAULT_REMEMBER_MOUSE_MODE);
         config.unlockFps = prefs.getBoolean(UNLOCK_FPS_STRING, DEFAULT_UNLOCK_FPS);

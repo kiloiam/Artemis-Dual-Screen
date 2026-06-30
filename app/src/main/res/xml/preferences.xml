@@ -299,6 +299,18 @@
             app:iconSpaceReserved="false" />
         <CheckBoxPreference
             android:defaultValue="false"
+            android:key="checkbox_remap_x_to_ctrl"
+            android:summary="@string/summary_remap_x_to_ctrl"
+            android:title="@string/title_remap_x_to_ctrl"
+            app:iconSpaceReserved="false" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="checkbox_remap_y_to_esc"
+            android:summary="@string/summary_remap_y_to_esc"
+            android:title="@string/title_remap_y_to_esc"
+            app:iconSpaceReserved="false" />
+        <CheckBoxPreference
+            android:defaultValue="false"
             android:key="checkbox_flip_face_buttons"
             android:summary="@string/summary_checkbox_flip_face_buttons"
             android:title="@string/title_checkbox_flip_face_buttons"

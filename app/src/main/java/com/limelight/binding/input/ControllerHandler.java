@@ -1344,10 +1344,33 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
                 }
             }
 
+            // Remap X→Ctrl / Y→Esc (keyboard events in mouse emulation mode)
+            if (prefConfig.remapXToCtrl && (changedMask & ControllerPacket.X_FLAG) != 0) {
+                byte dir = (inputMap & ControllerPacket.X_FLAG) != 0 ? KeyboardPacket.KEY_DOWN : KeyboardPacket.KEY_UP;
+                conn.sendKeyboardInput((short)0, dir, KeyboardPacket.MODIFIER_CTRL, (byte)0);
+            }
+            if (prefConfig.remapYToEsc && (changedMask & ControllerPacket.Y_FLAG) != 0) {
+                byte dir = (inputMap & ControllerPacket.Y_FLAG) != 0 ? KeyboardPacket.KEY_DOWN : KeyboardPacket.KEY_UP;
+                conn.sendKeyboardInput((short)27, dir, (byte)0, (byte)0);
+            }
+
             conn.sendControllerInput(controllerNumber, getActiveControllerMask(),
                     (short)0, (byte)0, (byte)0, (short)0, (short)0, (short)0, (short)0);
         }
         else {
+            // Remap X→Ctrl / Y→Esc (keyboard events, remove from controller flags)
+            int changedMask = inputMap ^ originalContext.inputMapLastSent;
+            if (prefConfig.remapXToCtrl && (changedMask & ControllerPacket.X_FLAG) != 0) {
+                byte dir = (inputMap & ControllerPacket.X_FLAG) != 0 ? KeyboardPacket.KEY_DOWN : KeyboardPacket.KEY_UP;
+                conn.sendKeyboardInput((short)0, dir, KeyboardPacket.MODIFIER_CTRL, (byte)0);
+                inputMap &= ~ControllerPacket.X_FLAG;
+            }
+            if (prefConfig.remapYToEsc && (changedMask & ControllerPacket.Y_FLAG) != 0) {
+                byte dir = (inputMap & ControllerPacket.Y_FLAG) != 0 ? KeyboardPacket.KEY_DOWN : KeyboardPacket.KEY_UP;
+                conn.sendKeyboardInput((short)27, dir, (byte)0, (byte)0);
+                inputMap &= ~ControllerPacket.Y_FLAG;
+            }
+            originalContext.inputMapLastSent = inputMap;
             conn.sendControllerInput(controllerNumber, getActiveControllerMask(),
                     inputMap,
                     leftTrigger, rightTrigger,
@@ -3091,6 +3114,7 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
         public int mouseEmulationPixelMultiplier = 1;
 
         public int mouseEmulationLastInputMap;
+        public int inputMapLastSent;
         // Poll at ~60Hz for smooth cursor movement (was 50ms = 20Hz)
         public final int mouseEmulationReportPeriod = 16;
 

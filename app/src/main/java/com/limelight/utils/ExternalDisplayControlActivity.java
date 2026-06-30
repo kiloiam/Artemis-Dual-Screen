@@ -76,7 +76,7 @@ public class ExternalDisplayControlActivity extends AppCompatActivity implements
     private Runnable dimScreenRunnable;
     private float originalBrightness = -1f; // -1 = use system default
     private static final int INACTIVITY_TIMEOUT_MS = 10_000;
-    private boolean hasRequestedNotificationPermission = false;
+    private static final String PREF_NOTIFICATION_REQUESTED = "notification_permission_requested";
 
 
     private static final String NOTIFICATION_CHANNEL_ID = "secondary_screen_active_channel_id";
@@ -538,13 +538,15 @@ public class ExternalDisplayControlActivity extends AppCompatActivity implements
     private void checkNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                // Only request if user hasn't previously denied permanently
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.POST_NOTIFICATIONS)
-                    || !hasRequestedNotificationPermission) {
-                    hasRequestedNotificationPermission = true;
+                android.content.SharedPreferences prefs = getPreferences(MODE_PRIVATE);
+                boolean alreadyRequested = prefs.getBoolean(PREF_NOTIFICATION_REQUESTED, false);
+                boolean shouldShow = ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.POST_NOTIFICATIONS);
+                // Show dialog on first request or if user didn't permanently deny.
+                // Skip only if already requested AND permanently denied (shouldShow=false).
+                if (shouldShow || !alreadyRequested) {
+                    prefs.edit().putBoolean(PREF_NOTIFICATION_REQUESTED, true).apply();
                     ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, PERMISSION_REQUEST_CODE);
                 }
-                // If user chose "don't ask again", skip silently
                 return;
             }
         }
