@@ -1349,10 +1349,10 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
             if (prefConfig.remapXToCtrl) {
                 boolean xPressed = (inputMap & ControllerPacket.X_FLAG) != 0;
                 if (xPressed && !remapXActive) {
-                    conn.sendKeyboardInput((short)0, KeyboardPacket.KEY_DOWN, KeyboardPacket.MODIFIER_CTRL, (byte)0);
+                    conn.sendKeyboardInput((short)0xA2, KeyboardPacket.KEY_DOWN, KeyboardPacket.MODIFIER_CTRL, (byte)0);
                     remapXActive = true;
                 } else if (!xPressed && remapXActive) {
-                    conn.sendKeyboardInput((short)0, KeyboardPacket.KEY_UP, KeyboardPacket.MODIFIER_CTRL, (byte)0);
+                    conn.sendKeyboardInput((short)0xA2, KeyboardPacket.KEY_UP, KeyboardPacket.MODIFIER_CTRL, (byte)0);
                     remapXActive = false;
                 }
             }
